@@ -96,12 +96,13 @@ namespace FileManager
         /// <param name="page">Страница</param>
         internal static void DrawTree(DirectoryInfo dir, int page)
         {
+            decimal height = ((decimal)Helper.WINDOW_HEIGHT / 100) * 60;
             StringBuilder tree = new StringBuilder();
             Functions.GetTree(tree, dir, "", true);
 
-            DrawWindow(0, 0, WINDOW_WIDTH, 18);
+            DrawWindow(0, 0, WINDOW_WIDTH, (int)height);
             (int currentLeft, int currentTop) = GetCursorPosition();
-            int pageLines = 16;//TODO: зависимость от размера окна
+            int pageLines = (int)height - 2;//TODO: проверить зависимость(было 16)
             string[] lines = tree.ToString().Split(new char[] { '\n' });
             int pageTotal = (lines.Length + pageLines - 1) / pageLines;
             if (page > pageTotal)
@@ -118,7 +119,7 @@ namespace FileManager
 
             //footer
             string footer = $"╡ {page} of {pageTotal} ╞";
-            Console.SetCursorPosition(WINDOW_WIDTH / 2 - footer.Length / 2, 17);
+            Console.SetCursorPosition(WINDOW_WIDTH / 2 - footer.Length / 2, pageLines + 1);
             Console.WriteLine(footer);
         }
 
