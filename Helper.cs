@@ -11,12 +11,17 @@ namespace FileManager
     {
         internal const int WINDOW_WIDTH = 140;
         internal const int WINDOW_HEIGHT = 40;
-
+        internal const decimal HEIGHT = ((decimal)WINDOW_HEIGHT / 100) * 60;
 
         internal static void UpdateConsole()
         {
             DrawConsole(Functions.currentDir, 0, WINDOW_HEIGHT - 4, WINDOW_WIDTH, 3);
             ProcessEnterCommand(WINDOW_WIDTH);
+        }
+
+        internal static void UpdateInfoWindow()
+        {
+            DrawWindow(0, (int)HEIGHT, Helper.WINDOW_WIDTH, (Helper.WINDOW_HEIGHT - 4) - (int)HEIGHT);
         }
 
 
@@ -69,6 +74,9 @@ namespace FileManager
 
         internal static void ParseCommandString(string command)
         {
+            UpdateInfoWindow();
+            int position = (int)HEIGHT + 1;
+
             string[] commandParams = command.ToLower().Split(' ');
             if (commandParams.Length > 0)
             {
@@ -76,11 +84,31 @@ namespace FileManager
                 {
                     case "cd":
                         Functions.ChangeDir(commandParams);
-
+                        ViewDirInfo(commandParams);
                         break;
 
                     case "ls":
                         Functions.List(commandParams);
+
+                        break;
+
+                    case "del":
+                        {
+                            if (commandParams.Length > 1)
+                            {
+                                Console.SetCursorPosition(2, position);
+                                Console.Write($"Удалить {commandParams[1]} ?(y/n)");
+                                DrawConsole(Functions.currentDir, 0, WINDOW_HEIGHT - 4, WINDOW_WIDTH, 3);
+                                if (Console.ReadLine() == "y")
+                                {
+                                    Console.SetCursorPosition(2, position + 2);
+                                    Console.WriteLine(Functions.DelFileOrDirectory(commandParams));
+
+                                }
+                                else
+                                    UpdateInfoWindow();
+                            }
+                        }
 
                         break;
                 }
@@ -96,13 +124,12 @@ namespace FileManager
         /// <param name="page">Страница</param>
         internal static void DrawTree(DirectoryInfo dir, int page)
         {
-            decimal height = ((decimal)Helper.WINDOW_HEIGHT / 100) * 60;
             StringBuilder tree = new StringBuilder();
             Functions.GetTree(tree, dir, "", true);
 
-            DrawWindow(0, 0, WINDOW_WIDTH, (int)height);
+            DrawWindow(0, 0, WINDOW_WIDTH, (int)HEIGHT);
             (int currentLeft, int currentTop) = GetCursorPosition();
-            int pageLines = (int)height - 2;//TODO: проверить зависимость(было 16)
+            int pageLines = (int)HEIGHT - 2;
             string[] lines = tree.ToString().Split(new char[] { '\n' });
             int pageTotal = (lines.Length + pageLines - 1) / pageLines;
             if (page > pageTotal)
@@ -123,7 +150,39 @@ namespace FileManager
             Console.WriteLine(footer);
         }
 
-        
+        internal static void ViewDirInfo(string[] commandParams)//TODO: до ума довести вывод на экран
+        {
+            DrawWindow(0, 0, WINDOW_WIDTH, (int)HEIGHT);
+            (int currentLeft, int currentTop) = GetCursorPosition();
+            int i = 0;
+
+            string dirName = commandParams[1];
+            var directory = new DirectoryInfo(dirName);
+
+            if (directory.Exists)
+            {
+                Console.SetCursorPosition(currentLeft + 2, currentTop + 1);
+                Console.WriteLine("Директории:");
+                DirectoryInfo[] dirs = directory.GetDirectories();
+                foreach (DirectoryInfo dir in dirs)
+                {
+                    Console.SetCursorPosition(currentLeft + 2, currentTop + 2 + i);
+                    Console.WriteLine(dir.Name);
+                    i++;
+                }
+                i = 0;
+                Console.SetCursorPosition((int)WINDOW_WIDTH / 2 - 2, currentTop + 1);
+                Console.WriteLine("Файлы:");
+                FileInfo[] files = directory.GetFiles();
+                foreach (FileInfo file in files)
+                {
+                    Console.SetCursorPosition((int)WINDOW_WIDTH / 2 - 2, currentTop + 2 + i);
+                    Console.WriteLine(file.Name);
+                    i++;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Отрисовка консоли

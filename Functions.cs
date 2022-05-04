@@ -11,6 +11,7 @@ namespace FileManager
     {
         internal static string currentDir = Directory.GetCurrentDirectory();
 
+
         /// <summary>
         /// Создание дерева каталогов
         /// </summary>
@@ -52,6 +53,7 @@ namespace FileManager
                 GetTree(tree, subDirects[i], indent, i == subDirects.Length - 1);
 
         }
+
         /// <summary>
         /// Смена директории
         /// </summary>
@@ -100,33 +102,13 @@ namespace FileManager
             return message;
         }
 
-        /// <summary>
-        /// Удаление каталога
-        /// </summary>
-        /// <param name="dirName"></param>
-        /// <returns></returns>
-        public static string DelDirectory(string dirName)
-        {
-            string message;
-            DirectoryInfo dirInfo = new DirectoryInfo(dirName);
-            if (dirInfo.Exists)
-            {
-                dirInfo.Delete(true);
-                message = "Каталог удален";
-            }
-            else
-
-                message = "Каталог не существует";
-
-            return message;
-        }
 
         /// <summary>
         /// Копирование файлa
         /// </summary>
         /// <param name="path">Отсюда</param>
         /// <param name="nPath">Сюда</param>
-        public static string CopypFiles(string path, string nPath)
+        public static string CopyFiles(string path, string nPath)
         {
             string message;
             FileInfo fileInf = new FileInfo(path);
@@ -146,17 +128,22 @@ namespace FileManager
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static string DelFile(string filePath)
+        public static string DelFileOrDirectory(string[] commandParams)
         {
             string message;
 
-            if (File.Exists(filePath))
+            if (commandParams.Length > 1 && File.Exists(commandParams[1]))
             {
-                File.Delete(filePath);
+                File.Delete(commandParams[1]);
                 message = "Файл успешно удален!";
             }
+            else if (commandParams.Length > 1 && Directory.Exists(commandParams[1]))
+            {
+                Directory.Delete(commandParams[1], true);
+                message = "Директория успешно удалена!";
+            }
             else
-                message = "Файл не существует";
+                message = "Директория/файл не существует";
 
             return message;
 
