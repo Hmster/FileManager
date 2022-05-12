@@ -187,10 +187,41 @@ namespace FileManager
                         }
 
                         break;
+
+                    case "help":
+                        {
+                            HelpList();
+                        }
+
+                        break;
                 }
 
             }
             UpdateConsole();
+        }
+
+        internal static void HelpList()
+        {
+            List<string> helpList = new List<string>
+            {
+                "ДОСТУПНЫЕ КОМАНДЫ:",
+                @"CD - смена директории(CD C:\test)",
+                @"LS - вывод дерева каталогов(LS C:\test)",
+                @"INF - вывод информации о файле / директории(INF C:\test, INF C:\test\file.txt)",
+                @"CP - копирование файла / директории(CP C:\test\test1 C:\test\test3, CP C:\test\file.txt C:\test\test3)",
+                @"MV - перемещение файла / директории(MV C:\test\test1 C:\test\test3, MV C:\test\file.txt C:\test\test3)",
+                @"DEL - удаление файла / директории(DEL C:\test\test1, DEL C:\test\file.txt)"
+            };
+
+            int position = (int)HEIGHT + 1;
+            int i = 0;
+            foreach (var info in helpList)
+            {
+                Console.SetCursorPosition(2, position + i);
+                Console.Write(info);
+                i ++;
+            }
+
         }
 
         /// <summary>
@@ -201,6 +232,9 @@ namespace FileManager
         {
             int position = (int)HEIGHT + 1;
             int i = 0;
+            string help = "Введите \"HELP\" для списка команд";
+            Console.SetCursorPosition(WINDOW_WIDTH - 2 - help.Length, position);
+            Console.Write(help);
             foreach (var info in Functions.NameInfo(name))
             {
                 Console.SetCursorPosition(2, position + i);
